@@ -4,6 +4,7 @@ const testData = require('./test_blog_data')
 const listWithOneBlog = testData.listWithOneBlog
 const listWithManyBlogs = testData.listWithManyBlogs
 const nullBlog = testData.nullBlog
+const nullAuthor = testData.nullAuthor
 
 test('dummy returns one', () => {
   const blogs = []
@@ -46,6 +47,32 @@ describe('favorite blog', () => {
   test('from list with many blogs', () => {
     const blog = listHelper.favoriteBlog(listWithManyBlogs)
     const expectedBlog = (({title, author, likes}) => ({title, author, likes}))(listWithManyBlogs[2])
+    expect(blog).toEqual(expectedBlog)
+  })
+})
+
+describe('author of most blogs', () => {
+  const emptyList = []
+  test('from empty list is null', () => {
+    const blog = listHelper.mostBlogs(emptyList)
+    expect(blog).toEqual(nullAuthor)
+  })
+
+  test('from list with one blog', () => {
+    const blog = listHelper.mostBlogs(listWithOneBlog)
+    const expectedBlog = {
+      author: 'Edsger W. Dijkstra',
+      blogs: 1
+    }
+    expect(blog).toEqual(expectedBlog)
+  })
+
+  test('from list with many blogs', () => {
+    const blog = listHelper.mostBlogs(listWithManyBlogs)
+    const expectedBlog = {
+      author: "Robert C. Martin",
+      blogs: 3
+    }
     expect(blog).toEqual(expectedBlog)
   })
 })

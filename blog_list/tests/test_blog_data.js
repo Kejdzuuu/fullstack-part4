@@ -4,6 +4,11 @@ const nullBlog = {
   likes: -1
 }
 
+const nullAuthor = {
+  author: "None",
+  blogs: -1
+}
+
 const listWithOneBlog = [
   {
     _id: '5a422aa71b54a676234d17f8',
@@ -69,5 +74,6 @@ const listWithManyBlogs = [
 module.exports = {
   listWithOneBlog,
   listWithManyBlogs,
-  nullBlog
+  nullBlog,
+  nullAuthor
 }
