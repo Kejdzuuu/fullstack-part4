@@ -44,8 +44,7 @@ const mostBlogs = (blogs) => {
 
   let authors = lodash.countBy(blogs, 'author')
 
-  Object.entries(authors).forEach(entry  => {
-    const [author, blogs] = entry
+  lodash.forEach(authors, (blogs, author) => {
     if (blogs > mostBlogsAuthor.blogs) {
       mostBlogsAuthor.author = author
       mostBlogsAuthor.blogs = blogs
@@ -55,9 +54,35 @@ const mostBlogs = (blogs) => {
   return mostBlogsAuthor
 }
 
+const mostLikes = (blogs) => {
+  let mostLikesAuthor = {
+    author: "None",
+    likes: -1
+  }
+  if (blogs.length === 0) {
+    return mostLikesAuthor
+  }
+
+  let authors = []
+
+  lodash.forEach(blogs, blog => {
+    const index = lodash.findIndex(authors, { 'author': blog.author })
+    if (index === -1) {
+      authors = authors.concat({'author': blog.author, 'likes': blog.likes})
+    } else {
+      authors[index].likes += blog.likes
+    }
+  })
+
+  authors = lodash.orderBy(authors, 'likes', 'desc')
+
+  return authors[0]
+}
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes,
 }
