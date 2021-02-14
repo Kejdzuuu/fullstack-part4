@@ -89,6 +89,18 @@ test('a blog post can be deleted', async () => {
   expect(blogs.length).toBe(testData.length - 1)
 })
 
+test('a blog post like count can be updated', async () => {
+  const newLikes = 666;
+  const blogs = await blogsInDb()
+  const blogToUpdate = blogs[0]
+  blogToUpdate.likes = newLikes
+
+  await api.put(`/api/blogs/${blogToUpdate.id}`).send(blogToUpdate)
+
+  const updatedBlogs = await blogsInDb()
+  expect(updatedBlogs[0].likes).toBe(newLikes)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
