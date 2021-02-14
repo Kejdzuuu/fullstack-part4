@@ -46,6 +46,22 @@ test('a blog post can be added', async () => {
   expect(blogs[blogs.length-1].url).toBe(newBlog.url)
 })
 
+test('reject blogs with missing title or url', async () => {
+  const blogA = {
+    title: 'Title',
+    author: 'Author',
+  }
+
+  await api.post('/api/blogs').send(blogA).expect(400)
+
+  const blogB = {
+    url: 'http://www.blog.pl',
+    author: 'Author',
+  }
+
+  await api.post('/api/blogs').send(blogB).expect(400)
+})
+
 test('likes property defaults to 0', async () => {
   const newBlog = {
     title: 'Test Blog',
