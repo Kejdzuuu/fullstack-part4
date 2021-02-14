@@ -75,6 +75,20 @@ test('likes property defaults to 0', async () => {
   expect(blogs[blogs.length-1].likes).toBe(0)
 })
 
+test('a blog post can be deleted', async () => {
+  const blogsBefore = await blogsInDb()
+  const deletedBlog = blogsBefore[0]
+
+  await api.delete(`/api/blogs/${deletedBlog.id}`).expect(204)
+
+  let blogs = await blogsInDb()
+  expect(blogs.length).toBe(testData.length - 1)
+
+  await api.delete(`/api/blogs/${deletedBlog.id}`).expect(204)
+  blogs = await blogsInDb()
+  expect(blogs.length).toBe(testData.length - 1)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
