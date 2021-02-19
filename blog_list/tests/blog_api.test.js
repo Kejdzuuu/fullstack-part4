@@ -11,94 +11,98 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
-beforeEach(async () => {
-  await Blog.deleteMany({})
+describe('blog api tests', () => {
 
-  const blogs = testData.map(blog => new Blog(blog))
-  const promiseArray = blogs.map(blog => blog.save())
-  await Promise.all(promiseArray)
-})
+  beforeEach(async () => {
+    await Blog.deleteMany({})
 
-test('correct amount of blogs returned', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body).toHaveLength(testData.length)
-})
+    const blogs = testData.map(blog => new Blog(blog))
+    const promiseArray = blogs.map(blog => blog.save())
+    await Promise.all(promiseArray)
+  })
 
-test('blog post has an id property', async () => {
-  const response = await api.get('/api/blogs')
-  expect(response.body[0].id).toBeDefined()
-})
+  test('correct amount of blogs returned', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.body).toHaveLength(testData.length)
+  })
 
-test('a blog post can be added', async () => {
-  const newBlog = {
-    title: 'Test Blog',
-    author: 'Author',
-    url: 'http://www.blog.pl',
-    likes: 5,
-  }
+  test('blog post has an id property', async () => {
+    const response = await api.get('/api/blogs')
+    expect(response.body[0].id).toBeDefined()
+  })
 
-  await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
+  test('a blog post can be added', async () => {
+    const newBlog = {
+      title: 'Test Blog',
+      author: 'Author',
+      url: 'http://www.blog.pl',
+      likes: 5,
+    }
 
-  const blogs = await blogsInDb()
-  expect(blogs).toHaveLength(testData.length + 1)
-  expect(blogs[blogs.length-1].title).toBe(newBlog.title)
-  expect(blogs[blogs.length-1].author).toBe(newBlog.author)
-  expect(blogs[blogs.length-1].url).toBe(newBlog.url)
-})
+    await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
 
-test('reject blogs with missing title or url', async () => {
-  const blogA = {
-    title: 'Title',
-    author: 'Author',
-  }
+    const blogs = await blogsInDb()
+    expect(blogs).toHaveLength(testData.length + 1)
+    expect(blogs[blogs.length-1].title).toBe(newBlog.title)
+    expect(blogs[blogs.length-1].author).toBe(newBlog.author)
+    expect(blogs[blogs.length-1].url).toBe(newBlog.url)
+  })
 
-  await api.post('/api/blogs').send(blogA).expect(400)
+  test('reject blogs with missing title or url', async () => {
+    const blogA = {
+      title: 'Title',
+      author: 'Author',
+    }
 
-  const blogB = {
-    url: 'http://www.blog.pl',
-    author: 'Author',
-  }
+    await api.post('/api/blogs').send(blogA).expect(400)
 
-  await api.post('/api/blogs').send(blogB).expect(400)
-})
+    const blogB = {
+      url: 'http://www.blog.pl',
+      author: 'Author',
+    }
 
-test('likes property defaults to 0', async () => {
-  const newBlog = {
-    title: 'Test Blog',
-    author: 'Author',
-    url: 'http://www.blog.pl',
-  }
+    await api.post('/api/blogs').send(blogB).expect(400)
+  })
 
-  await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
+  test('likes property defaults to 0', async () => {
+    const newBlog = {
+      title: 'Test Blog',
+      author: 'Author',
+      url: 'http://www.blog.pl',
+    }
 
-  const blogs = await blogsInDb()
-  expect(blogs[blogs.length-1].likes).toBe(0)
-})
+    await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
 
-test('a blog post can be deleted', async () => {
-  const blogsBefore = await blogsInDb()
-  const deletedBlog = blogsBefore[0]
+    const blogs = await blogsInDb()
+    expect(blogs[blogs.length-1].likes).toBe(0)
+  })
 
-  await api.delete(`/api/blogs/${deletedBlog.id}`).expect(204)
+  test('a blog post can be deleted', async () => {
+    const blogsBefore = await blogsInDb()
+    const deletedBlog = blogsBefore[0]
 
-  let blogs = await blogsInDb()
-  expect(blogs.length).toBe(testData.length - 1)
+    await api.delete(`/api/blogs/${deletedBlog.id}`).expect(204)
 
-  await api.delete(`/api/blogs/${deletedBlog.id}`).expect(204)
-  blogs = await blogsInDb()
-  expect(blogs.length).toBe(testData.length - 1)
-})
+    let blogs = await blogsInDb()
+    expect(blogs.length).toBe(testData.length - 1)
 
-test('a blog post like count can be updated', async () => {
-  const newLikes = 666;
-  const blogs = await blogsInDb()
-  const blogToUpdate = blogs[0]
-  blogToUpdate.likes = newLikes
+    await api.delete(`/api/blogs/${deletedBlog.id}`).expect(204)
+    blogs = await blogsInDb()
+    expect(blogs.length).toBe(testData.length - 1)
+  })
 
-  await api.put(`/api/blogs/${blogToUpdate.id}`).send(blogToUpdate)
+  test('a blog post like count can be updated', async () => {
+    const newLikes = 666;
+    const blogs = await blogsInDb()
+    const blogToUpdate = blogs[0]
+    blogToUpdate.likes = newLikes
 
-  const updatedBlogs = await blogsInDb()
-  expect(updatedBlogs[0].likes).toBe(newLikes)
+    await api.put(`/api/blogs/${blogToUpdate.id}`).send(blogToUpdate)
+
+    const updatedBlogs = await blogsInDb()
+    expect(updatedBlogs[0].likes).toBe(newLikes)
+  })
+
 })
 
 afterAll(() => {
