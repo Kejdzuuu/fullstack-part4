@@ -40,6 +40,10 @@ blogsRouter.post('/api/blogs', async (request, response) => {
     blog.likes = 0
   }
 
+  if (!blog.comments) {
+    blog.comments = []
+  }
+
   const user = await User.findById(decodedToken.id)
   blog.user = user._id
 
@@ -83,6 +87,19 @@ blogsRouter.put('/api/blogs/:id', async (request, response) => {
 
   if (blog) {
     blog.likes = newLikesValue;
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {new: true})
+    response.json(updatedBlog)
+  } else {
+    response.status(404).end()
+  }
+})
+
+blogsRouter.put('/api/blogs/:id/comments', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+  const comment = request.body.comment
+
+  if (blog) {
+    blog.comments = blog.comments ? blog.comments.concat(comment) : [comment]
     const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {new: true})
     response.json(updatedBlog)
   } else {
